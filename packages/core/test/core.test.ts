@@ -121,3 +121,22 @@ describe('i18n', () => {
     }
   });
 });
+
+describe('versions and releases', async () => {
+  const { compareVersions, parseRelease } = await import('../src/index.ts');
+  it('compares versions numerically', () => {
+    expect(compareVersions('0.2.10', '0.2.9')).toBeGreaterThan(0);
+    expect(compareVersions('v0.3.0', '0.2.99')).toBeGreaterThan(0);
+    expect(compareVersions('0.2.5', '0.2.5')).toBe(0);
+  });
+  it('reads a GitHub release and only trusts github.com links', () => {
+    const r = parseRelease({
+      tag_name: 'v0.2.7',
+      html_url: 'https://github.com/Wonvy/RSSFlow/releases/tag/v0.2.7',
+      assets: [{ name: 'rssflow-extension.zip', browser_download_url: 'https://github.com/Wonvy/RSSFlow/releases/download/v0.2.7/rssflow-extension.zip' }],
+    });
+    expect(r).toEqual({ version: '0.2.7', url: 'https://github.com/Wonvy/RSSFlow/releases/tag/v0.2.7', extensionZip: 'https://github.com/Wonvy/RSSFlow/releases/download/v0.2.7/rssflow-extension.zip', publishedAt: undefined });
+    expect(parseRelease({ tag_name: 'v1.0.0', html_url: 'https://evil.example/x' })?.url).toBe('');
+    expect(parseRelease({ tag_name: 'nightly' })).toBeUndefined();
+  });
+});

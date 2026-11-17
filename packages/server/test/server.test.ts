@@ -4,6 +4,7 @@ import type { Server } from 'node:http';
 
 process.env.RSSFLOW_DEV = '1';
 process.env.RSSFLOW_ALLOW_PRIVATE = '1';
+process.env.RSSFLOW_UPDATE_CHECK = '0'; // 测试不访问 GitHub
 
 const { Store } = await import('../src/store.ts');
 const { createApp } = await import('../src/app.ts');

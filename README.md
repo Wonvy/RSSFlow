@@ -17,6 +17,20 @@ No CSS, APIs or JSON knowledge needed. The interface is available in English and
                                        [Recipe gallery: share / reuse]
 ```
 
+## Screenshots
+
+| Make a feed: click one card, the whole list is found and the data API discovered | Style editor: change elements like in DevTools, previewed live |
+|---|---|
+| ![Picker](docs/images/picker-en.png) | ![Style editor](docs/images/style-editor-en.png) |
+
+| Popup: both tools, your feeds, this site's rules, update notice | Recipe gallery: shared feed recipes |
+|---|---|
+| ![Popup](docs/images/popup-en.png) | ![Gallery](docs/images/gallery-en.png) |
+
+## Download
+
+Get the latest `rssflow-extension.zip` from [Releases](https://github.com/Wonvy/RSSFlow/releases/latest), unzip it and follow [Install the browser extension](#install-the-browser-extension). Every push to `main` is tested, versioned and released automatically by GitHub Actions.
+
 ## Contents
 
 - [Features](#features)
@@ -28,6 +42,8 @@ No CSS, APIs or JSON knowledge needed. The interface is available in English and
 - [API](#api)
 - [Adding a language](#adding-a-language)
 - [Known limitations](#known-limitations)
+- [Updates](#updates)
+- [Automatic releases](#automatic-releases-github-actions)
 - [Paused features](#paused-features)
 
 ## Features
@@ -128,6 +144,8 @@ The extension talks to `http://localhost:8787` by default; change it at the bott
 | `npm run build:ext` | Build the extension into `packages/extension/dist` |
 | `npm test` | Run the tests (core + server end-to-end, including browser rendering) |
 | `npm run typecheck` | TypeScript type check |
+| `npm run update` | Update: pull the latest code, install dependencies, rebuild the extension |
+| `npm run screenshots` | Regenerate the README screenshots |
 
 ## Developer tools
 
@@ -172,6 +190,7 @@ node packages/server/scripts/try-detail.ts ~/Downloads/page.html --url "https://
 | `RSSFLOW_MIN_REFRESH` | `10` | Minimum refresh interval (minutes) |
 | `RSSFLOW_RENDER_CONCURRENCY` | `2` | Concurrent headless-browser renders |
 | `RSSFLOW_WRITE_RATE` | `30` | Write requests per IP per minute |
+| `RSSFLOW_UPDATE_CHECK` | on | Set to `0` to turn off the update check |
 | `ANTHROPIC_API_KEY` | unset | For AI summaries (see [Paused features](#paused-features)) |
 | `RSSFLOW_AI` / `RSSFLOW_AI_MODEL` / `RSSFLOW_AI_MAX_PER_HOUR` | auto / `claude-opus-5-5` / `200` | AI summary switch, model and hourly cap |
 
@@ -248,6 +267,34 @@ The popup, panels, gallery pages and API errors pick up the new language automat
 - Data APIs that need a login or a request signature can't be used by the server (credentials are removed); RSSFlow falls back to parsing the page.
 - API sniffing sees requests made after the panel opens, plus earlier GET requests. Earlier POST requests (e.g. GraphQL) need to happen again after the panel opens, for example by going to the next page.
 - Hotlink-protected images may still break in the few readers that rewrite HTML.
+
+## Updates
+
+**Browser extension.** When you open the popup, RSSFlow checks the latest release on GitHub (at most every 6 hours; turn off "Check for updates" at the bottom of the popup, or click "Check now"). If there is a newer version, the popup shows it with a download link. To update:
+
+1. Click "Download", unzip `rssflow-extension.zip` over your current extension folder.
+2. Click "Reload" on RSSFlow in `chrome://extensions` or `edge://extensions`.
+
+Browsers don't let an extension loaded in developer mode replace its own files, so these two steps are manual; once the extension is in a store, updates are fully automatic. The check only asks GitHub for public release information and sends no personal data.
+
+**Server.** The gallery footer shows the running version and tells you when a newer one exists. For a server deployed with `git clone`, this pulls the latest code, installs dependencies and rebuilds the extension; restart the server afterwards:
+
+```bash
+npm run update
+```
+
+If you have uncommitted local changes, the update stops and tells you instead of overwriting them. Set `RSSFLOW_UPDATE_CHECK=0` to turn off the server's update check.
+
+## Automatic releases (GitHub Actions)
+
+| Workflow | Runs on | Does |
+|---|---|---|
+| `CI` | pull requests and pushes to branches other than `main` | type check, tests, extension build |
+| `Release` | pushes to `main` (not for docs / screenshot-only changes), or manually | after the tests pass: computes the version, builds and zips the extension, and creates a GitHub Release with `rssflow-extension.zip` and generated notes |
+
+The version is the `major.minor` from the root `package.json` plus the release number, e.g. `0.2.15`. To start a new minor series, set `package.json` to `0.3.0`. The extension build and the server both read the version from the latest Git tag, so the download, the server and the update notice always agree.
+
+Regenerate the screenshots with `npm run screenshots` (run `npm run build:ext` first). Only the bundled demo pages are used.
 
 ## Paused features
 

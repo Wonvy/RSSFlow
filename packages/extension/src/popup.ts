@@ -1,6 +1,26 @@
 import { LOCALES, LOCALE_CODES, createTranslator, type MessageKey } from '@rssflow/core';
 import { DEFAULT_SERVER, api, effectiveLocale, loadMine, loadSettings, saveSettings, type Settings } from './bridge.ts';
 import { loadSiteStyles, saveSiteStyles } from './style-store.ts';
+import { checkForUpdate, currentVersion, setUpdateCheck, updateCheckEnabled } from './update.ts';
+
+/** 新版本提示：自动检查（可关闭）或手动「检查更新」 */
+async function renderUpdate(force = false): Promise<void> {
+  const t = createTranslator(effectiveLocale(settings));
+  $('version').textContent = t('popup.version', { version: currentVersion() });
+  const enabled = await updateCheckEnabled();
+  $<HTMLInputElement>('autoCheck').checked = enabled;
+  if (!enabled && !force) return;
+  const r = await checkForUpdate(force);
+  const box = $('update');
+  box.hidden = !r.newer;
+  if (r.newer && r.latest) {
+    $('updateText').textContent = t('popup.updateAvailable', { latest: r.latest.version, current: r.current });
+    const zip = $<HTMLAnchorElement>('updateZip');
+    zip.href = r.latest.extensionZip || r.latest.url;
+    $<HTMLAnchorElement>('updateNotes').href = r.latest.url;
+  }
+  if (force) $('updateStatus').textContent = r.newer ? '' : r.latest ? '✓ ' + t('popup.upToDate') : t('popup.updateFailed');
+}
 
 async function injectTool(tabId: number, tool: 'rss' | 'style'): Promise<void> {
   if (tool === 'rss') await chrome.scripting.executeScript({ target: { tabId }, files: ['sniff.js'], world: 'MAIN' }).catch(() => {});
@@ -153,6 +173,12 @@ async function main(): Promise<void> {
   });
 
   void renderSite();
+  void renderUpdate();
+  $('autoCheck').addEventListener('change', async (e) => {
+    await setUpdateCheck((e.target as HTMLInputElement).checked);
+    void renderUpdate();
+  });
+  $('checkNow').addEventListener('click', () => void renderUpdate(true));
 
   const saveServer = async () => {
     const v = $<HTMLInputElement>('server').value.trim().replace(/\/+$/, '') || DEFAULT_SERVER;

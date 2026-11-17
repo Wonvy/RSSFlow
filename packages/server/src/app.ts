@@ -15,7 +15,8 @@ import {
 import { ROOT_DIR, config } from './config.ts';
 import { FeedService, assertSelectors, runRecipe } from './runner.ts';
 import { toJsonFeed, toRss } from './feed.ts';
-import { detailPage, galleryPage } from './pages.ts';
+import { detailPage, galleryPage, setFooter } from './pages.ts';
+import { updateStatus } from './updates.ts';
 import { assertPublicUrl, fetchStatic } from './fetcher.ts';
 import { fetchDetail } from './details.ts';
 import type { AiService } from './ai.ts';
@@ -168,6 +169,15 @@ function demoPosts(page: number, size: number) {
   return { code: 0, message: 'ok', data: { page, size, total, has_more: page * size < total, list } };
 }
 
+/** 渐变色占位图：同一个文件名总是同一种颜色 */
+function placeholderSvg(name: string): string {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  const a = `hsl(${h} 85% 78%)`;
+  const b = `hsl(${(h + 45) % 360} 80% 62%)`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="520" height="390" viewBox="0 0 520 390"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="520" height="390" fill="url(#g)"/><circle cx="380" cy="120" r="70" fill="#fff" opacity=".25"/><rect x="60" y="250" width="260" height="24" rx="12" fill="#fff" opacity=".35"/></svg>`;
+}
+
 /** 示例详情页（开发模式）：带 og 标签、发布时间、正文，以及每页都一样的站点套话 */
 function demoPostPage(id: number): string {
   const n = id - 5000;
@@ -207,6 +217,10 @@ export function createApp(store: Store, ai: AiService | null = null): http.Serve
     if (m === 'OPTIONS') return send(res, 204, '', 'text/plain');
 
     // ---------- 页面 ----------
+    if (m === 'GET' && (p === '/' || p.startsWith('/r/'))) {
+      const u = updateStatus();
+      setFooter({ version: u.version, latest: u.updateAvailable ? u.latest?.version : undefined, releaseUrl: u.latest?.url });
+    }
     if (m === 'GET' && p === '/') {
       const q = (url.searchParams.get('q') || '').slice(0, 100);
       return send(res, 200, galleryPage({ locale, t, recipes: store.listPublic({ q }), q, base }), MIME['.html']);
@@ -240,7 +254,8 @@ export function createApp(store: Store, ai: AiService | null = null): http.Serve
 
     // ---------- API ----------
     if (m === 'GET' && p === '/api/health') {
-      return sendJson(res, 200, { ok: true, name: 'rssflow', version: '0.1.0', locale, ai: !!ai?.available });
+      const u = updateStatus();
+      return sendJson(res, 200, { ok: true, name: 'rssflow', version: u.version, latest: u.latest?.version, updateAvailable: u.updateAvailable, locale, ai: !!ai?.available });
     }
 
     if (m === 'POST' && p === '/api/preview') {
@@ -354,6 +369,11 @@ export function createApp(store: Store, ai: AiService | null = null): http.Serve
       if (post) return send(res, 200, demoPostPage(Number(post[1])), MIME['.html']);
       if (p === '/demo/protected') return send(res, 200, '<html><script>var arg1="3f2a";document.cookie="acw_sc__v2="+arg1;location.reload()</script></html>', MIME['.html']);
       if (p === '/demo/api/posts') return sendJson(res, 200, demoPosts(Number(url.searchParams.get('page')) || 1, Number(url.searchParams.get('size')) || 8));
+      // 示例页面里的图片：按文件名生成渐变色占位图（不依赖任何外部图片）
+      const ph = p.match(/^\/(?:demo\/covers|demo\/avatars|img)\/([\w.-]+)$/);
+      if (ph) return send(res, 200, placeholderSvg(ph[1]), 'image/svg+xml', { 'cache-control': 'max-age=3600' });
+      // 扩展的页面（弹窗等），截图用
+      if (p.startsWith('/dev/ext/') && (await serveFile(res, path.join(ROOT_DIR, 'packages/extension/dist'), p.slice(9)))) return;
       if (p === '/dev/styles.js' && (await serveFile(res, path.join(ROOT_DIR, 'packages/extension/dist'), 'styles.js'))) return;
       if (p === '/dev/picker.js' && (await serveFile(res, path.join(ROOT_DIR, 'packages/extension/dist'), 'content.js'))) return;
       if (p === '/dev/view') {

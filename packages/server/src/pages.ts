@@ -40,12 +40,33 @@ h1{font-size:28px;line-height:1.25;margin:16px 0 4px}
 .items .s{color:var(--muted);font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .err{color:var(--danger)}
 pre{background:var(--bg);border-radius:8px;padding:12px;overflow:auto;font-size:12px;margin:0}
+.foot{color:var(--muted);font-size:12.5px;padding:8px 0 32px;text-align:center}
 .badge{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
 `;
 
 const LOGO = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14"/><circle cx="6" cy="18" r="1.6" fill="currentColor" stroke="none"/></svg>`;
 
 const COPY_JS = `document.addEventListener('click',e=>{const b=e.target.closest('[data-copy]');if(!b)return;navigator.clipboard.writeText(b.dataset.copy).then(()=>{const o=b.textContent;b.textContent=b.dataset.done;setTimeout(()=>b.textContent=o,1500)})});`;
+
+/** 页面底部：版本号，有新版本时提示怎么更新 */
+export interface PageFooter {
+  version: string;
+  latest?: string;
+  releaseUrl?: string;
+}
+
+let footerInfo: PageFooter | null = null;
+export function setFooter(f: PageFooter): void {
+  footerInfo = f;
+}
+
+function footer(t: Translator): string {
+  if (!footerInfo) return '';
+  const upd = footerInfo.latest
+    ? ` · <a href="${esc(footerInfo.releaseUrl || '#')}" target="_blank" rel="noopener noreferrer">${esc(t('gallery.updateAvailable', { latest: footerInfo.latest }))}</a>`
+    : '';
+  return `<footer class="foot">${esc(t('gallery.version', { version: footerInfo.version }))}${upd}</footer>`;
+}
 
 function layout(locale: Locale, t: Translator, title: string, body: string, path: string): string {
   const langLinks = LOCALE_CODES.map(
@@ -63,6 +84,7 @@ function layout(locale: Locale, t: Translator, title: string, body: string, path
 <div class="wrap">
 <header class="top"><a class="brand" href="/">${LOGO}${esc(t('app.name'))}</a><nav class="lang" aria-label="${esc(t('common.language'))}">${langLinks}</nav></header>
 ${body}
+${footer(t)}
 </div>
 <script>${COPY_JS}</script>
 </body>

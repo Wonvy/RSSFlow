@@ -1,14 +1,19 @@
 {
   "name": "rssflow",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "npm run build -w @rssflow/extension && npm run dev -w @rssflow/server",
     "start": "npm start -w @rssflow/server",
     "build:ext": "npm run build -w @rssflow/extension",
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "update": "node scripts/update.mjs",
+    "screenshots": "node --disable-warning=ExperimentalWarning scripts/screenshots.ts"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.287",

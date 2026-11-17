@@ -10,3 +10,4 @@ export * from './i18n/index.ts';
 export * from './detail.ts';
 export * from './styles.ts';
 export * from './style-target.ts';
+export * from './version.ts';

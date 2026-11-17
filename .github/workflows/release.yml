@@ -1,0 +1,73 @@
+# 推送到 main 后自动发布新版本：
+#   测试 → 生成版本号（package.json 的主次版本 + 发布序号，如 0.2.15）→ 构建扩展 → 创建 GitHub Release 并附上安装包。
+# 只改了文档或截图时不发布。
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+      - name: Version
+        id: version
+        run: |
+          BASE=$(node -p "require('./package.json').version.split('.').slice(0, 2).join('.')")
+          echo "version=${BASE}.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build extension
+        env:
+          RSSFLOW_VERSION: ${{ steps.version.outputs.version }}
+        run: npm run build:ext
+
+      - name: Package
+        run: |
+          cd packages/extension/dist
+          zip -qr "$GITHUB_WORKSPACE/rssflow-extension.zip" .
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          cat > notes.md <<NOTES
+          **安装 / 更新扩展 · Install / update the extension**
+
+          1. 下载 \`rssflow-extension.zip\` 并解压（更新时覆盖原来的文件夹）· Download \`rssflow-extension.zip\` and unzip it (over your old folder when updating)
+          2. 打开 \`chrome://extensions\` 或 \`edge://extensions\`，开启开发者模式 · Open the extensions page and turn on Developer mode
+          3. 首次安装：点「加载已解压的扩展程序」选择该文件夹；更新：点 RSSFlow 的「重新加载」· First install: "Load unpacked"; update: click "Reload" on RSSFlow
+
+          **服务端 · Server**: \`git pull\` 或 \`npm run update\`，然后重启 · then restart.
+          NOTES
+          gh release create "v$VERSION" rssflow-extension.zip \
+            --target "$GITHUB_SHA" \
+            --title "RSSFlow v$VERSION" \
+            --notes-file notes.md \
+            --generate-notes \
+            --latest

@@ -17,6 +17,20 @@ RSSFlow 是一个浏览器扩展加一个小服务端，主要有两个功能：
                                 [规则市场：分享 / 一键复用]
 ```
 
+## 界面
+
+| 生成 RSS：点一张卡片，认出整个列表，并自动发现数据接口 | 样式编辑：像开发者工具一样修改元素，网页即时预览 |
+|---|---|
+| ![选取面板](docs/images/picker-zh-CN.png) | ![样式编辑器](docs/images/style-editor-zh-CN.png) |
+
+| 扩展弹窗：两个主功能、我的订阅、本站规则、新版本提示 | 规则市场：大家分享的订阅规则 |
+|---|---|
+| ![扩展弹窗](docs/images/popup-zh-CN.png) | ![规则市场](docs/images/gallery-zh-CN.png) |
+
+## 下载
+
+到 [Releases](https://github.com/Wonvy/RSSFlow/releases/latest) 下载最新的 `rssflow-extension.zip`，解压后按[安装浏览器扩展](#安装浏览器扩展)的步骤加载。每次有代码推送到 `main`，GitHub Actions 都会自动测试、生成新版本号并发布。
+
 ## 目录
 
 - [功能](#功能)
@@ -28,6 +42,8 @@ RSSFlow 是一个浏览器扩展加一个小服务端，主要有两个功能：
 - [API](#api)
 - [添加一种新语言](#添加一种新语言)
 - [已知限制](#已知限制)
+- [在线更新](#在线更新)
+- [自动发布](#自动发布github-actions)
 - [暂时搁置的功能](#暂时搁置的功能)
 
 ## 功能
@@ -128,6 +144,8 @@ npm run dev
 | `npm run build:ext` | 构建扩展到 `packages/extension/dist` |
 | `npm test` | 运行测试（核心算法 + 服务端端到端，包括动态渲染） |
 | `npm run typecheck` | TypeScript 类型检查 |
+| `npm run update` | 在线更新：拉取最新代码、安装依赖、重新构建扩展 |
+| `npm run screenshots` | 重新生成 README 里的界面截图 |
 
 ## 开发工具
 
@@ -172,6 +190,7 @@ node packages/server/scripts/try-detail.ts ~/Downloads/page.html --url "https://
 | `RSSFLOW_MIN_REFRESH` | `10` | 最短刷新间隔（分钟） |
 | `RSSFLOW_RENDER_CONCURRENCY` | `2` | 同时运行的浏览器渲染任务数 |
 | `RSSFLOW_WRITE_RATE` | `30` | 每个 IP 每分钟允许的写请求数 |
+| `RSSFLOW_UPDATE_CHECK` | 开启 | 设为 `0` 关闭新版本检查 |
 | `ANTHROPIC_API_KEY` | 未设置 | AI 摘要用（见[暂时搁置的功能](#暂时搁置的功能)） |
 | `RSSFLOW_AI` / `RSSFLOW_AI_MODEL` / `RSSFLOW_AI_MAX_PER_HOUR` | 自动 / `claude-opus-5-5` / `200` | AI 摘要的开关、模型和每小时上限 |
 
@@ -248,6 +267,34 @@ node packages/server/scripts/try-detail.ts ~/Downloads/page.html --url "https://
 - 需要登录态或请求签名的数据接口无法在服务器上使用（凭证会被去掉），这时会自动改回解析网页。
 - 接口嗅探只能看到选取面板打开之后的请求，以及之前已经发出的 GET 请求。之前发出的 POST 请求（比如 GraphQL）需要在面板打开后再触发一次，例如翻页。
 - 有防盗链的图片，在少数会改写 HTML 的 RSS 阅读器里仍然可能显示不出来。
+
+## 在线更新
+
+**浏览器扩展**：每次打开弹窗时会检查 GitHub 上的最新版本（每 6 小时最多一次，可以在弹窗底部关掉「自动检查更新」，也可以点「检查更新」立即检查）。有新版本时，弹窗顶部会提示，并给出下载链接。更新步骤：
+
+1. 点「下载新版」，解压 `rssflow-extension.zip`，覆盖原来的扩展文件夹；
+2. 在 `chrome://extensions` 或 `edge://extensions` 里点 RSSFlow 的「重新加载」。
+
+以开发者模式加载的扩展，浏览器不允许它自己替换自己的文件，所以需要手动完成上面两步；上架扩展商店后就能全自动更新。检查更新只会向 GitHub 请求公开的版本信息，不会发送任何个人数据。
+
+**服务端**：规则市场页面底部会显示当前版本；有新版本时会提示。用 `git clone` 部署的服务器，运行下面的命令就能更新（拉取最新代码、安装依赖、重新构建扩展），然后重启服务端：
+
+```bash
+npm run update
+```
+
+有未提交的本地修改时，更新会停下来提示你先处理，不会覆盖你的改动。设置 `RSSFLOW_UPDATE_CHECK=0` 可以关闭服务端的新版本检查。
+
+## 自动发布（GitHub Actions）
+
+| 工作流 | 什么时候运行 | 做什么 |
+|---|---|---|
+| `CI` | Pull Request、非 `main` 分支的推送 | 类型检查、测试、构建扩展 |
+| `Release` | 推送到 `main`（只改文档和截图时不运行），也可以手动运行 | 测试通过后生成版本号，构建并打包扩展，创建 GitHub Release，附上 `rssflow-extension.zip` 和自动生成的更新说明 |
+
+版本号 = 根目录 `package.json` 里的「主版本.次版本」+ 发布序号，例如 `0.2.15`。要发布下一个大版本，只需把 `package.json` 的版本改成 `0.3.0`。扩展构建和服务端都从最近的 Git 标签读取版本号，所以安装包、服务端和在线更新提示里的版本始终一致。
+
+截图可以用 `npm run screenshots` 重新生成（需要先运行 `npm run build:ext`），只使用项目自带的示例页面。
 
 ## 暂时搁置的功能
 

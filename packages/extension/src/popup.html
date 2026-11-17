@@ -34,6 +34,13 @@
   .status{font-size:12px;min-height:18px;margin-top:4px}
   .status.ok{color:var(--ok)} .status.fail{color:var(--danger)}
   footer{padding:0 14px 14px}
+  .update{border:1px solid var(--accent);background:var(--surface);border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:13px}
+  .update strong{display:block;color:var(--accent)}
+  .update p{margin:4px 0 8px;color:var(--muted);font-size:12px}
+  .update .row{display:flex;gap:6px}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-text)}
+  .ver{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:var(--muted)}
+  .ver label{display:flex;align-items:center;gap:4px;margin-left:auto}
   .msg{color:var(--danger);font-size:13px;margin-top:8px}
 </style>
 </head>
@@ -43,6 +50,11 @@
   <select id="locale" aria-label="Language"></select>
 </header>
 <main>
+  <div class="update" id="update" hidden>
+    <strong id="updateText"></strong>
+    <p id="updateHow" data-i18n="popup.updateHow"></p>
+    <div class="row"><a class="btn primary" id="updateZip" target="_blank" data-i18n="popup.updateDownload"></a><a class="btn" id="updateNotes" target="_blank" data-i18n="popup.updateNotes"></a></div>
+  </div>
   <button class="pick" id="pick"><kbd>Alt+Shift+R</kbd><strong data-i18n="popup.pick"></strong><span data-i18n="popup.pickSub"></span></button>
   <button class="pick alt" id="style"><strong data-i18n="popup.style"></strong><span data-i18n="popup.styleSub"></span></button>
   <div class="site" id="site" hidden><span id="siteText"></span><button class="btn" id="sitePause"></button></div>
@@ -55,6 +67,8 @@
   <div class="server"><input id="server" type="url" spellcheck="false"><button class="btn" id="test" data-i18n="popup.test"></button></div>
   <div class="status" id="status" role="status"></div>
   <a class="btn" id="gallery" href="#" target="_blank" data-i18n="popup.gallery"></a>
+  <div class="ver"><span id="version"></span><label><input type="checkbox" id="autoCheck"> <span data-i18n="popup.updateCheck"></span></label><button class="btn" id="checkNow" data-i18n="popup.checkNow"></button></div>
+  <div class="status" id="updateStatus" role="status"></div>
 </footer>
 <script src="popup.js"></script>
 </body>

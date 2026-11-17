@@ -1,10 +1,16 @@
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { getVersion } from '../../../scripts/version.mjs';
 
 const env = process.env;
 const flag = (v: string | undefined) => v === '1' || v === 'true';
 
 export const config = {
+  /** 当前版本（来自 Git 标签，见 scripts/version.mjs） */
+  version: getVersion(),
+  /** GitHub 仓库，用来检查新版本；RSSFLOW_UPDATE_CHECK=0 关闭检查 */
+  updateRepo: env.RSSFLOW_UPDATE_REPO || 'Wonvy/RSSFlow',
+  updateCheck: env.RSSFLOW_UPDATE_CHECK !== '0',
   port: Number(env.PORT || 8787),
   host: env.HOST || '127.0.0.1',
   /** 对外访问地址，用于生成订阅链接；不填则按请求的 Host 推断 */

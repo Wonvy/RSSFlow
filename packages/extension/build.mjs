@@ -1,6 +1,7 @@
 // 构建浏览器扩展：打包脚本、复制静态文件、生成图标。
 import * as esbuild from 'esbuild';
-import { cpSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { getVersion } from '../../scripts/version.mjs';
 import { deflateSync } from 'node:zlib';
 
 const watch = process.argv.includes('--watch');
@@ -10,6 +11,14 @@ rmSync(out, { recursive: true, force: true });
 mkdirSync(out + 'icons', { recursive: true });
 cpSync(new URL('./public/', import.meta.url).pathname, out, { recursive: true });
 cpSync(new URL('./src/popup.html', import.meta.url).pathname, out + 'popup.html');
+
+// 版本号写进 manifest（Chrome 要求纯数字，如 0.2.15），代码里也能读到
+const version = getVersion();
+const manifestPath = out + 'manifest.json';
+const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+manifest.version = version;
+writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+console.log(`RSSFlow extension v${version}`);
 
 // ---- 生成 RSS 图标 PNG（橙色圆角方块 + 白色信号弧线），不依赖任何图片库 ----
 function crc32(buf) {
@@ -73,6 +82,7 @@ const options = {
   target: ['chrome110', 'firefox115', 'safari16'],
   charset: 'utf8',
   logLevel: 'info',
+  define: { __RSSFLOW_VERSION__: JSON.stringify(version) },
 };
 
 if (watch) {
