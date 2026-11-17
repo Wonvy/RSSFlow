@@ -1,0 +1,5 @@
+{
+  "extName": { "message": "RSSFlow – 任意网页一键变 RSS" },
+  "extDescription": { "message": "在任何网站上点一下列表，就能生成 RSS 订阅，不需要写代码，还能把规则分享给别人。" },
+  "cmdPick": { "message": "在当前页面选取列表" }
+}

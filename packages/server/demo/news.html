@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>示例新闻站 · 静态列表</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; background: #f6f6f4; color: #222; }
+    header { background: #1f2937; color: #fff; padding: 12px 24px; display: flex; gap: 24px; align-items: center; }
+    header nav a { color: #e5e7eb; margin-right: 16px; text-decoration: none; }
+    .layout { display: grid; grid-template-columns: 1fr 260px; gap: 24px; max-width: 1000px; margin: 24px auto; padding: 0 16px; }
+    .news-list { list-style: none; padding: 0; margin: 0; }
+    .news-item { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; gap: 16px; }
+    .news-item img { width: 120px; height: 80px; object-fit: cover; border-radius: 6px; background: #ddd; }
+    .news-item h3 { margin: 0 0 6px; font-size: 18px; }
+    .news-item h3 a { color: #111; text-decoration: none; }
+    .meta { color: #888; font-size: 13px; }
+    .meta .tags a { color: #2563eb; margin-left: 6px; font-size: 12px; }
+    .desc { margin: 6px 0 0; color: #555; font-size: 14px; }
+    aside .widget { background: #fff; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+    aside .widget a { display: block; color: #333; font-size: 14px; padding: 2px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>示例新闻</strong>
+    <nav><a href="/">首页</a><a href="/tech">科技</a><a href="/biz">财经</a><a href="/life">生活</a></nav>
+  </header>
+  <div class="layout">
+    <main>
+      <ul class="news-list" id="main-list">
+        <li class="news-item">
+          <img data-src="/img/1.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="">
+          <div class="body">
+            <h3><a href="/news/1001.html">国产大模型发布新版本，推理能力大幅提升</a></h3>
+            <div class="meta"><span class="time">2026-11-17 09:30</span><span class="tags"><a href="/tag/ai">AI</a><a href="/tag/tech">科技</a></span></div>
+            <p class="desc">新版本在数学与代码任务上表现突出，官方称推理速度提升两倍，并开放了免费试用。</p>
+          </div>
+        </li>
+        <li class="news-item">
+          <img data-src="/img/2.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="">
+          <div class="body">
+            <h3><a href="/news/1002.html">城市轨道交通新线路今日开通运营</a></h3>
+            <div class="meta"><span class="time">2026-11-16 18:05</span><span class="tags"><a href="/tag/city">城市</a></span></div>
+            <p class="desc">新线路全长 32 公里，设站 24 座，将极大缓解城东片区的通勤压力。</p>
+          </div>
+        </li>
+        <li class="news-item">
+          <img data-src="/img/3.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="">
+          <div class="body">
+            <h3><a href="/news/1003.html">秋季运动会圆满落幕，多项纪录被刷新</a></h3>
+            <div class="meta"><span class="time">2026-11-15 20:00</span><span class="tags"><a href="/tag/sport">体育</a></span></div>
+            <p class="desc">本届运动会共有来自 40 所学校的 3000 余名运动员参赛，刷新纪录 12 项。</p>
+          </div>
+        </li>
+        <li class="news-item">
+          <img data-src="/img/4.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="">
+          <div class="body">
+            <h3><a href="/news/1004.html">博物馆推出夜间开放活动，市民反响热烈</a></h3>
+            <div class="meta"><span class="time">2026-11-14 10:12</span><span class="tags"><a href="/tag/culture">文化</a></span></div>
+            <p class="desc">每周五、周六晚间延长开放至 21 点，并推出特别讲解与互动体验项目。</p>
+          </div>
+        </li>
+        <li class="news-item">
+          <img data-src="/img/5.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="">
+          <div class="body">
+            <h3><a href="/news/1005.html">新能源汽车月销量再创新高</a></h3>
+            <div class="meta"><span class="time">2026-11-13 08:45</span><span class="tags"><a href="/tag/auto">汽车</a></span></div>
+            <p class="desc">行业协会数据显示，10 月新能源汽车销量同比增长 35%，渗透率突破 55%。</p>
+          </div>
+        </li>
+      </ul>
+    </main>
+    <aside>
+      <div class="widget"><b>热门</b><a href="/hot/1">热门文章一</a><a href="/hot/2">热门文章二</a><a href="/hot/3">热门文章三</a><a href="/hot/4">热门文章四</a><a href="/hot/5">热门文章五</a><a href="/hot/6">热门文章六</a><a href="/hot/7">热门文章七</a><a href="/hot/8">热门文章八</a><a href="/hot/9">热门文章九</a></div>
+      <div class="widget"><b>推荐</b><a href="/rec/1">推荐阅读一</a><a href="/rec/2">推荐阅读二</a><a href="/rec/3">推荐阅读三</a><a href="/rec/4">推荐阅读四</a><a href="/rec/5">推荐阅读五</a><a href="/rec/6">推荐阅读六</a><a href="/rec/7">推荐阅读七</a><a href="/rec/8">推荐阅读八</a><a href="/rec/9">推荐阅读九</a></div>
+      <div class="widget"><b>友情链接</b><a href="https://a.example">站点 A</a><a href="https://b.example">站点 B</a><a href="https://c.example">站点 C</a><a href="https://d.example">站点 D</a><a href="https://e.example">站点 E</a><a href="https://f.example">站点 F</a><a href="https://g.example">站点 G</a><a href="https://h.example">站点 H</a><a href="https://i.example">站点 I</a></div>
+    </aside>
+  </div>
+</body>
+</html>

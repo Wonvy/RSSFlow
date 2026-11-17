@@ -1,0 +1,5 @@
+{
+  "extName": { "message": "RSSFlow – turn any page into RSS" },
+  "extDescription": { "message": "Click a list on any website to get an RSS feed. No code needed. Share recipes with others." },
+  "cmdPick": { "message": "Pick a list on this page" }
+}

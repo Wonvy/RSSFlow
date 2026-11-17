@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>示例社区 · 接口加载的卡片流</title>
+  <style>
+    body { font-family: system-ui, "PingFang SC", sans-serif; margin: 0; background: #f5f5f4; color: #1c1917; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 48px; }
+    .feed { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .Fe3dQx_card { background: #fff; border-radius: 12px; overflow: hidden; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+    .Fe3dQx_cover { height: 120px; background: linear-gradient(135deg, var(--a), var(--b)); }
+    .Fe3dQx_body { padding: 12px 14px; }
+    .Fe3dQx_title { font-weight: 700; display: block; margin-bottom: 6px; }
+    .Fe3dQx_meta { color: #78716c; font-size: 13px; }
+    .Fe3dQx_meta a { color: inherit; }
+    .more { display: block; margin: 24px auto 0; padding: 10px 24px; border-radius: 999px; border: 1px solid #d6d3d1; background: #fff; cursor: pointer; font: inherit; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>示例社区</h1>
+    <p>卡片由 JavaScript 调用 <code>/demo/api/posts</code> 接口渲染，卡片本身没有链接，点击后由脚本跳转。</p>
+    <div class="feed" id="feed"></div>
+    <button class="more" id="more">加载更多</button>
+  </div>
+  <script>
+    let page = 0;
+    const feed = document.getElementById('feed');
+    async function load() {
+      page++;
+      const res = await fetch('/demo/api/posts?page=' + page + '&size=8');
+      const { data } = await res.json();
+      for (const p of data.list) {
+        const card = document.createElement('div');
+        card.className = 'Fe3dQx_card';
+        card.setAttribute('role', 'button');
+        card.style.setProperty('--a', p.color[0]);
+        card.style.setProperty('--b', p.color[1]);
+        card.innerHTML = '<div class="Fe3dQx_cover"></div><div class="Fe3dQx_body"><span class="Fe3dQx_title"></span><div class="Fe3dQx_meta"><a></a> · <span class="Fe3dQx_ago"></span></div></div>';
+        card.querySelector('.Fe3dQx_title').textContent = p.title;
+        const a = card.querySelector('a');
+        a.textContent = p.author.name;
+        a.href = p.author.home;
+        card.querySelector('.Fe3dQx_ago').textContent = p.time_ago;
+        card.addEventListener('click', (e) => { if (e.target.tagName !== 'A') location.href = p.url; });
+        feed.appendChild(card);
+      }
+      document.getElementById('more').hidden = !data.has_more;
+    }
+    document.getElementById('more').addEventListener('click', load);
+    if (new URLSearchParams(location.search).has('ssr')) {
+      // 模仿常见的社区首页：第 1 页内容直接写在网页里（不请求接口），之后的页面才走接口
+      const topics = ['品牌设计', '插画', '海报', '包装', 'UI 界面', '字体设计', '摄影', '动效', '空间设计', '产品设计'];
+      const colors = [['#fed7aa', '#fca5a5'], ['#bfdbfe', '#c4b5fd'], ['#bbf7d0', '#99f6e4'], ['#fde68a', '#fdba74']];
+      for (let i = 0; i < 8; i++) {
+        const n = i + 1;
+        const card = document.createElement('div');
+        card.className = 'Fe3dQx_card';
+        card.setAttribute('role', 'button');
+        card.style.setProperty('--a', colors[i % 4][0]);
+        card.style.setProperty('--b', colors[i % 4][1]);
+        card.innerHTML = '<div class="Fe3dQx_cover"></div><div class="Fe3dQx_body"><span class="Fe3dQx_title">' + topics[i % 10] + '作品集 · 第 ' + n + ' 期</span><div class="Fe3dQx_meta"><a href="/u/designer' + n + '">设计师' + n + '</a> · <span class="Fe3dQx_ago">' + n * 3 + '小时前</span></div></div>';
+        feed.appendChild(card);
+      }
+      page = 1;
+    } else {
+      load();
+    }
+  </script>
+</body>
+</html>

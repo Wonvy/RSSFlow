@@ -1,0 +1,6 @@
+[
+  { "slug": "hello-rss", "title": "Why RSS is still the best way to follow the web", "date": "2026-11-16T08:00:00Z", "excerpt": "No algorithm, no ads, just the sites you chose — in the order they published." },
+  { "slug": "no-feed", "title": "What to do when a site has no feed", "date": "2026-11-12T14:30:00Z", "excerpt": "A surprising number of sites dropped RSS. Here is how to get it back without writing code." },
+  { "slug": "readers-2026", "title": "The best RSS readers in 2026", "date": "2026-11-05T09:15:00Z", "excerpt": "We tried eleven readers on desktop and mobile. These five are worth your time." },
+  { "slug": "spa", "title": "Single-page apps and the open web", "date": "2026-10-28T19:45:00Z", "excerpt": "When content only exists after JavaScript runs, scrapers and feeds need a real browser." }
+]

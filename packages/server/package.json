@@ -1,0 +1,16 @@
+{
+  "name": "@rssflow/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/index.ts",
+    "dev": "RSSFLOW_DEV=1 RSSFLOW_ALLOW_PRIVATE=1 node --disable-warning=ExperimentalWarning --watch src/index.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.10.0",
+    "@rssflow/core": "*",
+    "linkedom": "^0.18.15",
+    "playwright": "^1.49.0"
+  }
+}

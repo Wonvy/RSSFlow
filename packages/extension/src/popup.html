@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>RSSFlow</title>
+<style>
+  :root{--bg:#fff;--surface:#f6f6f4;--text:#1d1d1f;--muted:#6b6b70;--border:#e4e4e0;--accent:#e8590c;--accent-text:#fff;--ok:#2b8a3e;--danger:#c92a2a}
+  @media (prefers-color-scheme:dark){:root{--bg:#1e1e20;--surface:#28282b;--text:#ececed;--muted:#a0a0a6;--border:#36363a;--accent:#ff8a3d;--accent-text:#141415;--ok:#69db7c;--danger:#ff6b6b}}
+  *{box-sizing:border-box}
+  body{margin:0;width:340px;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+  header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:6px;font-weight:700}
+  .brand svg{width:18px;height:18px;color:var(--accent)}
+  select,input,button{font:inherit;color:inherit}
+  select{border:1px solid var(--border);background:var(--bg);border-radius:6px;padding:3px 6px;font-size:12px}
+  main{padding:14px}
+  .pick{width:100%;border:0;border-radius:12px;background:var(--accent);color:var(--accent-text);padding:14px;text-align:left;cursor:pointer}
+  .pick strong{display:block;font-size:15px}
+  .pick span{font-size:12.5px;opacity:.9}
+  .pick kbd{float:right;font:11px ui-monospace,monospace;opacity:.8}
+  .pick.alt{margin-top:8px;background:var(--surface);color:var(--text);border:1px solid var(--border)}
+  .pick.alt span{opacity:.75}
+  .site{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+  h3{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:16px 0 6px}
+  .mine{list-style:none;margin:0;padding:0;max-height:220px;overflow:auto;border:1px solid var(--border);border-radius:10px}
+  .mine li{display:flex;align-items:center;gap:8px;padding:8px 10px;border-top:1px solid var(--border)}
+  .mine li:first-child{border-top:0}
+  .mine .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none}
+  .mine .empty{color:var(--muted);font-size:13px}
+  .btn{border:1px solid var(--border);background:var(--bg);border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer;white-space:nowrap;text-decoration:none}
+  .btn:hover{background:var(--surface)}
+  .server{display:flex;gap:6px}
+  .server input{flex:1;min-width:0;border:1px solid var(--border);background:var(--bg);border-radius:7px;padding:6px 8px;font-size:12.5px}
+  .status{font-size:12px;min-height:18px;margin-top:4px}
+  .status.ok{color:var(--ok)} .status.fail{color:var(--danger)}
+  footer{padding:0 14px 14px}
+  .msg{color:var(--danger);font-size:13px;margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="6" cy="18" r="1.8" fill="currentColor"/></svg>RSSFlow</div>
+  <select id="locale" aria-label="Language"></select>
+</header>
+<main>
+  <button class="pick" id="pick"><kbd>Alt+Shift+R</kbd><strong data-i18n="popup.pick"></strong><span data-i18n="popup.pickSub"></span></button>
+  <button class="pick alt" id="style"><strong data-i18n="popup.style"></strong><span data-i18n="popup.styleSub"></span></button>
+  <div class="site" id="site" hidden><span id="siteText"></span><button class="btn" id="sitePause"></button></div>
+  <div class="msg" id="pickMsg" hidden></div>
+  <h3 data-i18n="popup.mine"></h3>
+  <ul class="mine" id="mine"></ul>
+</main>
+<footer>
+  <h3 data-i18n="popup.server"></h3>
+  <div class="server"><input id="server" type="url" spellcheck="false"><button class="btn" id="test" data-i18n="popup.test"></button></div>
+  <div class="status" id="status" role="status"></div>
+  <a class="btn" id="gallery" href="#" target="_blank" data-i18n="popup.gallery"></a>
+</footer>
+<script src="popup.js"></script>
+</body>
+</html>
